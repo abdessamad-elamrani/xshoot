@@ -10,13 +10,14 @@ def create_timed_rotating_log(path):
     logger.setLevel(logging.INFO)
 
     handler = TimedRotatingFileHandler(path,
-                                       when="m",
+                                       when="s",
                                        interval=1,
                                        backupCount=5)
     logger.addHandler(handler)
 
-    logger.info("This is a test!")
-    time.sleep(0.5)
+    for i in range(100):
+        logger.info("This is a test!")
+        time.sleep(0.5)
 
 
 # ----------------------------------------------------------------------

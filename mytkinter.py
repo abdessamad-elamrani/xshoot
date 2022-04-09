@@ -40,10 +40,10 @@ def run():
         f"lets run monitor.py, on this host {hostname.get()} and username/passowrd is {username.get()}/{password.get()}!")
     commands = textarea.get('1.0', 'end').splitlines()
     print('###')
-    print("selected mode is: "+size_time.get())
+    print("selected mode is: "+size_or_time.get())
     print(folderPath.get())
     print('###')
-    m1 = Monitorer(hostname.get(), username.get(), password.get(), int(interval.get()), commands, int(iterations.get())-1, folderPath.get())
+    m1 = Monitorer(hostname.get(), username.get(), password.get(), int(interval.get()), commands, int(iterations.get())-1, folderPath.get(),size_or_time.get())
     m1.start()
 
 
@@ -60,7 +60,7 @@ commands = tk.StringVar()
 filename = tk.StringVar()
 interval = tk.StringVar()
 iterations = tk.StringVar()
-size_time = tk.StringVar()
+size_or_time = tk.StringVar()
 folderPath = tk.StringVar()
 
 # ======================================== HOSTNAME ========================================================
@@ -133,8 +133,8 @@ btnFind.pack()
 loggingtype_label = ttk.Label(root, text="Select if you want to log by Size or Time")
 loggingtype_label.pack()
 ##### Radio buttons to select size or time !
-r1 = ttk.Radiobutton(root,text="size based", value="s", variable=size_time)
-r2 = ttk.Radiobutton(root,text="time based", value="t", variable=size_time)
+r1 = ttk.Radiobutton(root,text="size based", value="s", variable=size_or_time)
+r2 = ttk.Radiobutton(root,text="time based", value="t", variable=size_or_time)
 r1.pack()
 r1.focus()
 r2.pack()
@@ -152,7 +152,7 @@ textarea.focus()
 
 
 
-# =================================== LOAD  OLD  SETTINGS ==============================================
+# =================================== LOAD  SETTINGS FROM FILE in same Folder as App ==============================================
 
 
 ##### label settings title to show on left side
@@ -167,9 +167,17 @@ filename_entry.focus()
 load_button = ttk.Button(root, text="Load", command=load, )
 load_button.pack()
 
-##### if you click on this button, it will run  function greet that is declared at begining !
+
+# =================================== Start the Test ==============================================
+
+
+##### if you click on this button, it will Start the test (call monitorer)
 greet_button = ttk.Button(root, text="Start", command=run, )
 greet_button.pack()
+
+
+# =================================== Quiet the App  ==============================================
+
 
 ##### Quit button to quit the root window
 quit_button = ttk.Button(root, text="Quit", command=root.destroy)

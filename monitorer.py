@@ -8,11 +8,12 @@ from logging.handlers import RotatingFileHandler
 import time
 from datetime import datetime
 import os
-from tkinter import filedialog
+from logging.handlers import TimedRotatingFileHandler
+
 
 class Monitorer:
 
-    def __init__(self, host, user, passwd, sla, commands, iterations, folder_path):
+    def __init__(self, host, user, passwd, sla, commands, iterations, folder_path, size_or_time):
         self.host = host
         self.user = user
         self.passwd = passwd
@@ -20,6 +21,7 @@ class Monitorer:
         self.commands = commands
         self.iterations = iterations
         self.folder_path = folder_path
+        self.size_or_time = size_or_time
 
     def start(self):
         client = paramiko.SSHClient()
@@ -29,25 +31,30 @@ class Monitorer:
         interact = SSHClientInteraction(client, timeout=10, display=False)
 
         #========== defining and preparing logger ============
-
         log_formatter = logging.Formatter('%(message)s')
-
         newdirectory_name = 'Fw__'+self.host+'__'+str(datetime.now().strftime("%d%b-%I%p-%Mmin"))
         #folderpath = "C:\Temp"
         fullpath = self.folder_path + "\\" + newdirectory_name
         os.mkdir(fullpath)
-
         logpath = fullpath+'\\log'
 
-        my_handler = RotatingFileHandler(logpath, mode='a', maxBytes=5 * 1024,
-                                         backupCount=2, encoding=None, delay=0)
-        my_handler.setFormatter(log_formatter)
-        my_handler.setLevel(logging.INFO)
+        #### if logging is TimeBased  ## default is 10min ! need to expose it later
+        if self.size_or_time == 't':
+            mylogger = logging.getLogger("Rotating Log")
+            mylogger.setLevel(logging.INFO)
+            # when="m" means seconds ! change to seconds or hours
+            handler = TimedRotatingFileHandler(logpath, when="s", interval=5, backupCount=5)
+            mylogger.addHandler(handler)
 
-        app_log = logging.getLogger('root')
-        app_log.setLevel(logging.INFO)
-        app_log.addHandler(my_handler)
-
+        #### Otherwise its SizeBased
+        else:
+            my_handler = RotatingFileHandler(logpath, mode='a', maxBytes=5 * 1024,
+                                             backupCount=2, encoding=None, delay=0)
+            my_handler.setFormatter(log_formatter)
+            my_handler.setLevel(logging.INFO)
+            mylogger = logging.getLogger('root')
+            mylogger.setLevel(logging.INFO)
+            mylogger.addHandler(my_handler)
 
         #======================== Loop Iterations, and Execute and Log commands =====================
 
@@ -62,7 +69,7 @@ class Monitorer:
                 interact.expect(".*#.*")
                 cmd_output_uname = interact.current_output_clean
                 #print(cmd_output_uname)
-                app_log.info(cmd_output_uname)
+                mylogger.info(cmd_output_uname)
                 # lets sleep for 10sec
                 print("")
                 print("")

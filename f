@@ -6,3 +6,4 @@ test1
 get sys status
 execute time
 get sys status
+
