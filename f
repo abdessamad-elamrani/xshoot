@@ -5,3 +5,4 @@ test1
 10
 get sys status
 execute time
+get sys status
