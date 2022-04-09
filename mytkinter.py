@@ -1,7 +1,7 @@
 import tkinter as tk
 from tkinter import scrolledtext
 from tkinter import ttk
-
+from tkinter import filedialog
 from monitorer import Monitorer
 
 # ==================================== enabling high DPI for windows ====================================
@@ -15,17 +15,9 @@ except:
 # ==================================== ACTIONS (functions) to RUN ===================================================
 
 
-
-def run():
-    # def __init__(self, host, user, passwd, sla, commands, iterations):
-    print(
-        f"lets run monitor.py, on this host {hostname.get()} and username/passowrd is {username.get()}/{password.get()}!")
-    commands = textarea.get('1.0', 'end').splitlines()
-    print('###')
-    print(commands)
-    print('###')
-    m1 = Monitorer(hostname.get(), username.get(), password.get(), int(interval.get()), commands, int(iterations.get())-1)
-    m1.start()
+def getFolderPath():
+    folder_selected = filedialog.askdirectory()
+    folderPath.set(folder_selected)
 
 
 def load():
@@ -42,6 +34,19 @@ def load():
     #### inserting the whole list to text area ( converting  list tempcomm to text again via ''.join(xx))
     textarea.insert(1.0, ''.join(tempcomm))
 
+def run():
+    # def __init__(self, host, user, passwd, sla, commands, iterations):
+    print(
+        f"lets run monitor.py, on this host {hostname.get()} and username/passowrd is {username.get()}/{password.get()}!")
+    commands = textarea.get('1.0', 'end').splitlines()
+    print('###')
+    print("selected mode is: "+size_time.get())
+    print(folderPath.get())
+    print('###')
+    m1 = Monitorer(hostname.get(), username.get(), password.get(), int(interval.get()), commands, int(iterations.get())-1, folderPath.get())
+    m1.start()
+
+
 # ==================================== Root frame and Variables ===================================================
 
 
@@ -55,6 +60,9 @@ commands = tk.StringVar()
 filename = tk.StringVar()
 interval = tk.StringVar()
 iterations = tk.StringVar()
+size_time = tk.StringVar()
+folderPath = tk.StringVar()
+
 # ======================================== HOSTNAME ========================================================
 
 ##### label hostname  title to show on left side
@@ -110,7 +118,27 @@ iterations_entry = ttk.Entry(root, width=15, textvariable=iterations)
 iterations_entry.pack()
 iterations_entry.focus()
 
+# ====================================== FolderPath  ==================================================
 
+iterations_label = ttk.Label(root, text="Select where to save logs: ")
+iterations_label.pack()
+##### Button to select Folder
+btnFind = ttk.Button(root, text="Browse Folder", command=getFolderPath)
+btnFind.pack()
+
+# ====================================== LoggingType Size Based or Time Based  ==================================================
+
+
+##### label logging type
+loggingtype_label = ttk.Label(root, text="Select if you want to log by Size or Time")
+loggingtype_label.pack()
+##### Radio buttons to select size or time !
+r1 = ttk.Radiobutton(root,text="size based", value="s", variable=size_time)
+r2 = ttk.Radiobutton(root,text="time based", value="t", variable=size_time)
+r1.pack()
+r1.focus()
+r2.pack()
+r2.focus()
 # ==================================== COMMANDS   ====================================================
 
 ##### label commands title to show on left side

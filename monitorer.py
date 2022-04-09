@@ -8,16 +8,18 @@ from logging.handlers import RotatingFileHandler
 import time
 from datetime import datetime
 import os
+from tkinter import filedialog
 
 class Monitorer:
 
-    def __init__(self, host, user, passwd, sla, commands, iterations):
+    def __init__(self, host, user, passwd, sla, commands, iterations, folder_path):
         self.host = host
         self.user = user
         self.passwd = passwd
         self.sla = sla
         self.commands = commands
         self.iterations = iterations
+        self.folder_path = folder_path
 
     def start(self):
         client = paramiko.SSHClient()
@@ -30,9 +32,12 @@ class Monitorer:
 
         log_formatter = logging.Formatter('%(message)s')
 
-        newdirectory = 'Fw__'+self.host+'__'+str(datetime.now().strftime("%d%b-%I%p-%Mmin"))
-        os.mkdir(newdirectory)
-        logpath = newdirectory+'\\log'
+        newdirectory_name = 'Fw__'+self.host+'__'+str(datetime.now().strftime("%d%b-%I%p-%Mmin"))
+        #folderpath = "C:\Temp"
+        fullpath = self.folder_path + "\\" + newdirectory_name
+        os.mkdir(fullpath)
+
+        logpath = fullpath+'\\log'
 
         my_handler = RotatingFileHandler(logpath, mode='a', maxBytes=5 * 1024,
                                          backupCount=2, encoding=None, delay=0)
