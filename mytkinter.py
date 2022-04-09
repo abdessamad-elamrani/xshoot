@@ -11,7 +11,6 @@ try:
     windll.shcore.SetProcessDpiAwareness(1)
 except:
     pass
-
 # ==================================== ACTIONS (functions) to RUN ===================================================
 
 
@@ -35,7 +34,7 @@ def load():
     textarea.insert(1.0, ''.join(tempcomm))
 
 def run():
-    # def __init__(self, host, user, passwd, sla, commands, iterations):
+    # def __init__(self, host, user, passwd, sla, commands, iterations, folder_path, size_or_time)
     print(
         f"lets run monitor.py, on this host {hostname.get()} and username/passowrd is {username.get()}/{password.get()}!")
     commands = textarea.get('1.0', 'end').splitlines()
