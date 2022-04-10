@@ -7,16 +7,18 @@ from pathlib import Path
 from tkinter import *
 # Explicit imports to satisfy Flake8
 from tkinter import Tk, Canvas, Entry, Text, Button, PhotoImage
-import AnalyseWindow
+import tkinter as tk
+from tkinter import scrolledtext
+from tkinter import ttk
+from tkinter import filedialog
+from monitorer import Monitorer
 
 OUTPUT_PATH = Path(__file__).parent
 ASSETS_PATH = OUTPUT_PATH / Path("AssetsTshoot")
 
-
 # ==================================== enabling high DPI for windows ====================================
 try:
     from ctypes import windll
-
     windll.shcore.SetProcessDpiAwareness(1)
 except:
     pass
@@ -31,11 +33,66 @@ def relative_to_assets(path: str) -> Path:
 def switch_to_analyse():
     window.destroy()
 
-window = Tk()
 
-window.geometry("1513x1075")
+def getFolderPath():
+    folder_selected = filedialog.askdirectory()
+    folderPath.set(folder_selected)
+    entry_13.insert(0,folder_selected)
+
+def load():
+    f = open(filename.get(), 'r')
+    entry_1.insert(0, f.readline().strip())
+    entry_2.insert(0, f.readline().strip())
+    entry_3.insert(0, f.readline().strip())
+    entry_4.insert(0, f.readline().strip())
+    entry_5.insert(0, f.readline().strip())
+    entry_13.insert(0, f.readline().strip())
+    ### rest of lines in file are commands, getting them into list
+    tempcomm = []
+    for x in f:
+        tempcomm.append(x)
+    #### inserting the whole list to text area ( converting  list tempcomm to text again via ''.join(xx))
+    entry_11.insert(1.0, ''.join(tempcomm))
+
+def run():
+    # def __init__(self, host, user, passwd, sla, commands, iterations, folder_path, size_or_time)
+    entry_12.insert("end",f"Connecting to {hostname.get()} with username/passowrd  {username.get()}/{password.get()}!\n")
+    commands = entry_11.get('1.0', 'end').splitlines()
+
+    entry_12.insert("end",'\n')
+
+    if size_or_time.get() == "t" :
+        entry_12.insert("end", "Your selected logging mode is: Time based\n")
+    else:
+        entry_12.insert("end", "Your selected logging mode is: Time based\n")
+
+    entry_12.insert("end",'\n')
+
+    #entry_12.insert("end","selected mode is: " + str(lambda a : "Size" if size_or_time.get()=='s'  else "Time"))
+    entry_12.insert("end","Logging to folder : "+location.get()+"\n")
+    entry_12.insert("end",'\n')
+    window.update()
+    m1 = Monitorer(hostname.get(), username.get(), password.get(), int(interval.get()), commands, int(iterations.get())-1, location.get(),size_or_time.get(),window,entry_12)
+    m1.start()
+
+#============================ Window frame and Variables  ===========================
+
+window = tk.Tk()
+window.title("xShoot platform")
+
+window.geometry("1967x1117")
 window.configure(bg = "#3A7FF6")
 
+hostname = tk.StringVar()
+username = tk.StringVar()
+password = tk.StringVar()
+commands = tk.StringVar()
+filename = tk.StringVar()
+interval = tk.StringVar()
+iterations = tk.StringVar()
+size_or_time = tk.StringVar()
+folderPath = tk.StringVar()
+location = tk.StringVar()
 
 #================================  Menu Bar
 menubar = Menu(window)
@@ -55,78 +112,122 @@ window.config(menu=menubar)
 
 ###################################
 #
-canvas = Canvas(window, bg = "#3A7FF6", height = 1075, width = 1513, bd = 0, highlightthickness = 0, relief = "ridge")
+canvas = Canvas(window, bg = "#3A7FF6", height = 1117, width = 1967, bd = 0, highlightthickness = 0, relief = "ridge")
 canvas.place(x = 0, y = 0)
-canvas.create_rectangle(433.0, 0.0, 1623.0, 1117.0, fill = "#FCFCFC", outline = "")
-
+canvas.create_rectangle(433.0, 0.0, 1967.0, 1117.0, fill = "#FCFCFC", outline = "")
 
 canvas.create_text(24.0, 11.0, anchor = "nw", text = "xShoot platform", fill = "#FFFFFF", font = ("Arsenal Regular", 45 * -1))
 canvas.create_text(131.0, 102.0, anchor = "nw", text = "Node Details", fill = "#FFFFFF", font = ("Andika", 24 * -1))
+
+# ======================================== HOSTNAME ========================================================
 canvas.create_text(18.0, 156.0, anchor = "nw", text = "Node  Hostname/IP", fill = "#FFFFFF", font = ("Andika", 15 * -1))
 entry_image_1 = PhotoImage(file = relative_to_assets("entry_1.png"))
 entry_bg_1 = canvas.create_image(330.0, 167.5, image = entry_image_1)
-entry_1 = Entry(bd = 0, bg = "#F1F5FF", highlightthickness = 0)
+entry_1 = Entry(bd = 0, bg = "#F1F5FF", highlightthickness = 0, textvariable=hostname)
 entry_1.place(x = 270.5, y = 156.0, width = 119.0, height = 21.0)
+
+# ======================================= USERNAME  ===========================================================
 canvas.create_text(18.0, 194.0, anchor = "nw", text = "Username", fill = "#FFFFFF", font = ("Andika", 15 * -1))
 entry_image_2 = PhotoImage(file = relative_to_assets("entry_2.png"))
 entry_bg_2 = canvas.create_image(330.0, 204.5, image = entry_image_2)
-entry_2 = Entry(bd = 0, bg = "#F1F5FF", highlightthickness = 0)
+entry_2 = Entry(bd = 0, bg = "#F1F5FF", highlightthickness = 0, textvariable=username)
 entry_2.place(x = 270.5, y = 193.0, width = 119.0, height = 21.0)
+
+# ====================================== PASSWORD =====================================================
 canvas.create_text(18.0, 230.0, anchor = "nw", text = "Password", fill = "#FFFFFF", font = ("Andika", 15 * -1))
-canvas.create_text(18.0, 278.0, anchor = "nw", text = "Interval Between Rounds", fill = "#FFFFFF", font = ("Andika", 15 * -1))
 entry_image_3 = PhotoImage(file = relative_to_assets("entry_3.png"))
 entry_bg_3 = canvas.create_image(330.0, 242.0, image = entry_image_3)
-entry_3 = Entry(bd = 0, bg = "#F1F5FF", highlightthickness = 0)
+entry_3 = Entry(bd = 0, bg = "#F1F5FF", highlightthickness = 0, textvariable=password)
 entry_3.place(x = 271.0, y = 230.0, width = 118.0, height = 22.0)
+
+# ====================================== INTERVAL  ==================================================
+canvas.create_text(18.0, 278.0, anchor = "nw", text = "Interval Between Rounds (in Sec)", fill = "#FFFFFF", font = ("Andika", 15 * -1))
 entry_image_4 = PhotoImage(file = relative_to_assets("entry_4.png"))
 entry_bg_4 = canvas.create_image(330.0, 281.5, image = entry_image_4)
-entry_4 = Entry(bd = 0, bg = "#F1F5FF", highlightthickness = 0)
+entry_4 = Entry(bd = 0, bg = "#F1F5FF", highlightthickness = 0, textvariable=interval)
 entry_4.place(x = 270.5, y = 270.0, width = 119.0, height = 21.0)
+
+# ====================================== ITERATIONS  ==================================================
 canvas.create_text(18.0, 319.0, anchor = "nw", text = "Max Number of Rounds", fill = "#FFFFFF", font = ("Andika", 15 * -1))
 entry_image_5 = PhotoImage(file = relative_to_assets("entry_5.png"))
-entry_bg_5 = canvas.create_image(330.0, 322.5, image = entry_image_5)
-entry_5 = Entry(bd = 0, bg = "#F1F5FF", highlightthickness = 0)
+entry_bg_5 = canvas.create_image(330.0, 322.5, image = entry_image_5 )
+entry_5 = Entry(bd = 0, bg = "#F1F5FF", highlightthickness = 0, textvariable=iterations)
 entry_5.place(x = 270.5, y = 311.0, width = 119.0, height = 21.0)
+
+# ====================================== Advanced Mode Button  ==================================================
 button_image_1 = PhotoImage(file = relative_to_assets("button_1.png"))
 button_1 = Button(image = button_image_1, borderwidth = 0, highlightthickness = 0, command = lambda: print("button_1 clicked"), relief = "flat")
 button_1.place(x = 126.0, y = 363.0, width = 163.0, height = 51.0)
 
+# ====================================== White Ligne1  ==================================================
 canvas.create_rectangle(0.0, 435.0, 450.0, 437.0, fill = "#FFFFFF", outline = "")
 
+# ====================================== Settings & Logging  ==================================================
 canvas.create_text(99.0, 470.0, anchor = "nw", text = "Settings & Logging ", fill = "#FFFFFF", font = ("Andika", 24 * -1))
+
+# ====================================== LOAD  SETTINGS FROM FILE in same Folder as App  ==================================================
 canvas.create_text(18.0, 527.0, anchor = "nw", text = "Load local settings ", fill = "#FFFFFF", font = ("Andika", 15 * -1))
 entry_image_6 = PhotoImage(file = relative_to_assets("entry_6.png"))
 entry_bg_6 = canvas.create_image(225.0, 539.0, image = entry_image_6)
-entry_6 = Entry(bd = 0, bg = "#F1F5FF", highlightthickness = 0)
+entry_6 = Entry(bd = 0, bg = "#F1F5FF", highlightthickness = 0, textvariable=filename)
 entry_6.place(x = 177.0, y = 527.0, width = 96.0, height = 22.0)
+###### Button to Load Settings
 button_image_2 = PhotoImage(file = relative_to_assets("button_2.png"))
-button_2 = Button(image = button_image_2, borderwidth = 0, highlightthickness = 0, command = lambda: print("button_2 clicked"), relief = "flat")
+button_2 = Button(image = button_image_2, borderwidth = 0, highlightthickness = 0, command = load, relief = "flat")
 button_2.place(x = 311.0, y = 527.0, width = 90.0, height = 23.0)
-canvas.create_text(18.0, 583.0, anchor = "nw", text = "Select Results Location", fill = "#FFFFFF", font = ("Andika", 15 * -1))
+
+# ====================================== Select Results Location FolderPath  ==================================================
+canvas.create_text(20.0, 562.0, anchor = "nw", text = "Select Results Location", fill = "#FFFFFF", font = ("Andika", 15 * -1))
 button_image_3 = PhotoImage(file = relative_to_assets("button_3.png"))
-button_3 = Button(image = button_image_3, borderwidth = 0, highlightthickness = 0, command = lambda: print("button_3 clicked"), relief = "flat")
+button_3 = Button(image = button_image_3, borderwidth = 0, highlightthickness = 0, command = getFolderPath, relief = "flat")
 button_3.place(x = 369.0, y = 579.0, width = 31.704421997070312, height = 26.62933349609375)
+
+### entry to read folder path !!! attention , this is he one 'location' we will send to monitorer
+entry_image_13 = PhotoImage(file = relative_to_assets("entry_6.png"))
+entry_bg_13 = canvas.create_image(225.0, 539.0, image = entry_image_6)
+entry_13 = Entry(bd = 0, bg = "#F1F5FF", highlightthickness = 0, textvariable=location)
+entry_13.place(x = 33.0, y = 594.0, width = 291.0, height = 22.0)
+
+# ====================================== LoggingType Size Based or Time Based  ==================================================
 canvas.create_text(18.0, 640.0, anchor = "nw", text = "Select Logging Logic", fill = "#FFFFFF", font = ("Andika", 15 * -1))
+'''
 button_image_4 = PhotoImage(file = relative_to_assets("button_4.png"))
-button_4 = Button(image = button_image_4, borderwidth = 0, highlightthickness = 0, command = lambda: print("button_4 clicked"), relief = "flat")
+button_4 = Radiobutton(image = button_image_4, borderwidth = 0, highlightthickness = 0, variable=size_or_time, relief = "flat")
 button_4.place(x = 210.0, y = 618.0, width = 191.0, height = 51.0)
 button_image_5 = PhotoImage(file = relative_to_assets("button_5.png"))
-button_5 = Button(image = button_image_5, borderwidth = 0, highlightthickness = 0, command = lambda: print("button_5 clicked"), relief = "flat")
+button_5 = Radiobutton(image = button_image_5, borderwidth = 0, highlightthickness = 0,variable=size_or_time, relief = "flat")
 button_5.place(x = 258.0, y = 666.0, width = 143.0, height = 45.0)
+'''
+s = ttk.Style()                     # Creating style element
+s.configure('Wild.TRadiobutton',    # First argument is the name of style. Needs to end with: .TRadiobutton
+        background='#3A7FF6',         # Setting background to our specified color above
+        foreground='white')
+r1 = ttk.Radiobutton(window,text="size based", value="s", variable=size_or_time, style = 'Wild.TRadiobutton')
+r1.place(x = 210.0, y = 618.0, width = 191.0, height = 51.0)
+r2 = ttk.Radiobutton(window,text="time based", value="t", variable=size_or_time, style = 'Wild.TRadiobutton')
+r2.place(x = 210.0, y = 666.0, width = 143.0, height = 45.0)
+
+# ====================================== Specify Rotation Condition  ==================================================
 canvas.create_text(18.0, 717.0, anchor = "nw", text = "Rotation Condition \n [in Bytes] for Size based\n [in Mins ]  for Time based", fill = "#FFFFFF", font = ("Andika", 15 * -1))
 entry_image_7 = PhotoImage(file = relative_to_assets("entry_7.png"))
 entry_bg_7 = canvas.create_image(346.5, 826.0, image = entry_image_7)
 entry_7 = Entry(bd = 0, bg = "#F1F5FF", highlightthickness = 0)
 entry_7.place(x = 304.0, y = 811.0, width = 85.0, height = 28.0)
+
+# ====================================== Specify MaxNumber of Log Files (rotated)  ==================================================
 canvas.create_text(18.0, 814.0, anchor = "nw", text = "Max Number of Log Files (rotated)", fill = "#FFFFFF", font = ("Andika", 15 * -1))
 entry_image_8 = PhotoImage(file = relative_to_assets("entry_8.png"))
 entry_bg_8 = canvas.create_image(347.5, 754.0, image = entry_image_8)
 entry_8 = Entry(bd = 0, bg = "#F1F5FF", highlightthickness = 0)
 entry_8.place(x = 306.0, y = 740.0, width = 83.0, height = 26.0)
 
+# ====================================== White Ligne2  ==================================================
 canvas.create_rectangle(1.0, 879.0, 450.0, 881.0, fill = "#FFFFFF", outline = "")
 
+# ====================================== Cloud Commands DB  ==================================================
 canvas.create_text(81.0, 902.0, anchor = "nw", text = "Cloud Commands DB", fill = "#FFFFFF", font = ("Andika", 24 * -1))
+
+# ====================================== Server  ==================================================
 canvas.create_text(18.0, 962.0, anchor = "nw", text = "Server", fill = "#FFFFFF", font = ("Andika", 15 * -1))
 entry_image_9 = PhotoImage(file = relative_to_assets("entry_9.png"))
 entry_bg_9 = canvas.create_image(156.5, 974.5, image = entry_image_9)
@@ -135,6 +236,8 @@ entry_9.place(x = 101.5, y = 964.0, width = 110.0, height = 19.0)
 button_image_6 = PhotoImage(file = relative_to_assets("button_6.png"))
 button_6 = Button(image = button_image_6, borderwidth = 0, highlightthickness = 0, command = lambda: print("button_6 clicked"), relief = "flat")
 button_6.place(x = 258.0, y = 962.0, width = 145.0, height = 23.0)
+
+# ====================================== Select a Tshoot  ==================================================
 canvas.create_text(18.0, 1019.0, anchor = "nw", text = "Select a Tshoot", fill = "#FFFFFF", font = ("Andika", 15 * -1))
 entry_image_10 = PhotoImage(file = relative_to_assets("entry_10.png"))
 entry_bg_10 = canvas.create_image(203.5, 1033.5, image = entry_image_10)
@@ -143,24 +246,37 @@ entry_10.place(x = 154.0, y = 1021.0, width = 99.0, height = 23.0)
 button_image_7 = PhotoImage(file = relative_to_assets("button_7.png"))
 button_7 = Button(image = button_image_7, borderwidth = 0, highlightthickness = 0, command = lambda: print("button_7 clicked"), relief = "flat")
 button_7.place(x = 288.0, y = 1020.0, width = 115.0, height = 25.0)
+
+# ====================================== Fortinet LOGO  ==================================================
 image_image_1 = PhotoImage(file = relative_to_assets("image_1.png"))
-image_1 = canvas.create_image(1413.0, 25.0, image = image_image_1)
+image_1 = canvas.create_image(1870.0, 25.0, image = image_image_1)
+
+# ====================================== Tshoot Text and TextArea  ==================================================
 canvas.create_text(675.0, 48.0, anchor = "nw", text = "Tshoot", fill = "#505485", font = ("Andika", 20 * -1))
 entry_image_11 = PhotoImage(file = relative_to_assets("entry_11.png"))
-entry_bg_11 = canvas.create_image(706.5, 524.0, image = entry_image_11)
-entry_11 = Text(bd = 0, bg = "#F1F5FF", highlightthickness = 0)
-entry_11.place(x = 471.0, y = 86.0, width = 471.0, height = 874.0)
+entry_bg_11 = canvas.create_image(721.5, 524.0, image = entry_image_11)
+entry_11 = scrolledtext.ScrolledText(bd = 0, bg = "#F1F5FF", highlightthickness = 0)
+entry_11.place(x = 471.0, y = 86.0, width = 501.0, height = 874.0)
+
+# ====================================== Start Button  ==================================================
 button_image_8 = PhotoImage(file = relative_to_assets("button_8.png"))
-button_8 = Button(image = button_image_8, borderwidth = 0, highlightthickness = 0, command = lambda: print("button_8 clicked"), relief = "flat")
+button_8 = Button(image = button_image_8, borderwidth = 0, highlightthickness = 0, command = run, relief = "flat")
 button_8.place(x = 484.0, y = 1000.0, width = 173.0, height = 46.0)
+
+# ====================================== Stop Button  ==================================================
 button_image_9 = PhotoImage(file = relative_to_assets("button_9.png"))
-button_9 = Button(image = button_image_9, borderwidth = 0, highlightthickness = 0, command = lambda: print("button_9 clicked"), relief = "flat")
+button_9 = Button(image = button_image_9, borderwidth = 0, highlightthickness = 0, command = window.destroy, relief = "flat")
 button_9.place(x = 739.0, y = 1000.0, width = 173.0, height = 46.0)
+
+# ====================================== Console Text and Console text Area  ==================================================
 canvas.create_text(1150.0, 48.0, anchor = "nw", text = "Console Outputs", fill = "#505485", font = ("Andika", 20 * -1))
 entry_image_12 = PhotoImage(file = relative_to_assets("entry_12.png"))
-entry_bg_12 = canvas.create_image(1227.0, 524.0, image = entry_image_12)
-entry_12 = Text(bd = 0, bg = "#F1F5FF", highlightthickness = 0)
-entry_12.place(x = 988.0, y = 86.0, width = 471.0, height = 874.0)
-canvas.create_text(1006.0, 1010.0, anchor = "nw", text = "v1.0   April 2022      https://github.com/abdessamad-elamrani/xshoot\n                             elamrani.abdessamad@gmail.com", fill = "#274DD3", font = ("Roboto Bold", 14 * -1))
+entry_bg_12 = canvas.create_image(1463.0, 524.0, image = entry_image_12)
+entry_12 = scrolledtext.ScrolledText(bd = 0, bg = "#F1F5FF", highlightthickness = 0)
+entry_12.place(x = 1019.0, y = 86.0, width = 888.0, height = 874.0)
+
+# ====================================== trailer version and git  ==================================================
+canvas.create_text(1222.0, 1014.0, anchor = "nw", text = "v1.0   April 2022      https://github.com/abdessamad-elamrani/xshoot\n                             elamrani.abdessamad@gmail.com", fill = "#274DD3", font = ("Roboto Bold", 14 * -1))
+
 window.resizable(False, False)
 window.mainloop()

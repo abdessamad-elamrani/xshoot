@@ -13,7 +13,7 @@ from logging.handlers import TimedRotatingFileHandler
 
 class Monitorer:
 
-    def __init__(self, host, user, passwd, sla, commands, iterations, folder_path, size_or_time):
+    def __init__(self, host, user, passwd, sla, commands, iterations, folder_path, size_or_time, window, textarea):
         self.host = host
         self.user = user
         self.passwd = passwd
@@ -22,12 +22,19 @@ class Monitorer:
         self.iterations = iterations
         self.folder_path = folder_path
         self.size_or_time = size_or_time
+        self.window = window
+        self.textarea=textarea
+
 
     def start(self):
         client = paramiko.SSHClient()
         client.load_system_host_keys()
         client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-        client.connect(hostname=self.host, username=self.user, password=self.passwd)
+        try:
+            client.connect(hostname=self.host, username=self.user, password=self.passwd)
+        except Exception as e:
+            self.textarea.insert("end", "ERROR : "+str(e))  ## Throw Error to Console
+            return
         interact = SSHClientInteraction(client, timeout=10, display=False)
 
         #========== defining and preparing logger ============
@@ -60,23 +67,20 @@ class Monitorer:
 
 
         for i in range(self.iterations):
-            print("################## starting next iteration ####################")
-            print(datetime.now())
-            print("#####################################################")
-
+            self.textarea.insert("end","\n"+str(datetime.now())+" : Wakeup to start next cycle [number "+str(i)+"]")
+            self.window.update()
             for x in self.commands:
                 interact.send(x)
                 interact.expect(".*#.*")
                 cmd_output_uname = interact.current_output_clean
                 #print(cmd_output_uname)
                 mylogger.info(cmd_output_uname)
-                # lets sleep for 10sec
-                print("")
-                print("")
-            print("########### waiting ", self.sla, "sec before next iteration #############")
-            print(datetime.now())
-            print("#####################################################")
+            # lets sleep for 10sec
+            self.textarea.insert("end", "\n"+str(datetime.now())+" : Round "+str(i)+" done !\n\n.....Going to sleep for "+ str(self.sla)+" Sec .....")
+            self.window.update()
             time.sleep(self.sla)
-            print("")
+            self.textarea.insert("end","\n")
+            self.window.update()
 
-        print("\n\n\ndone!\n\n")
+
+        self.textarea.insert("end","\n"+str(datetime.now())+" : Done with Success, logs under "+self.folder_path)
