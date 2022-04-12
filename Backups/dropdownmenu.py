@@ -16,6 +16,7 @@ selected_weekday = tk.StringVar()
 weekday = ttk.Combobox(root, textvariable=selected_weekday)
 weekday["values"] = ("Monday", "Tuesday", "Wednesday", "Thursday", "Friday")
 weekday["state"] = "readonly"  # "normal is the counterpart"
+
 weekday.pack()
 
 

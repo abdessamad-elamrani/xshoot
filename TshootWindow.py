@@ -2,7 +2,7 @@
 # https://github.com/ParthJadhav/Tkinter-Designer
 
 from pathlib import Path
-
+import requests
 from tkinter import *
 # Explicit imports to satisfy Flake8
 from tkinter import Tk, Canvas, Entry, Text, Button, PhotoImage
@@ -14,6 +14,8 @@ from monitorer import Monitorer
 
 OUTPUT_PATH = Path(__file__).parent
 ASSETS_PATH = OUTPUT_PATH / Path("AssetsTshoot")
+
+import requests
 
 # ==================================== enabling high DPI for windows ====================================
 try:
@@ -29,9 +31,25 @@ except:
 def donothing():
     x = 0
 
+def connect():
+    provided_server = server.get()
+    list_templates = []
+    if provided_server == "server_xshoot1":
+        r1 = requests.get(server_xshoot1+"index", stream=True)  ## server_xshoot1 is global variable with my github..see below
+        for line in r1.iter_lines():
+            list_templates.append(line.decode())
+        tuple_templates = tuple(list_templates)
+        entry_10["values"] = tuple_templates
+        entry_10["state"] = "readonly"
 
-advanced = True
-
+def load_selected_tshoot():
+    tshootname = selected_tshoot.get()
+    wholelinkTshoot = server_xshoot1+tshootname
+    r2 = requests.get(wholelinkTshoot, stream=True)  ## server_xshoot1 is global variable with my github..see below
+    tempfullthoot = []
+    for line in r2.iter_lines():
+        tempfullthoot.append(line.decode()+"\n")
+    entry_11.insert(1.0, ''.join(tempfullthoot))
 
 def hide_advanced():
     listOfGlobals = globals()
@@ -177,6 +195,11 @@ iterations = tk.StringVar()
 size_or_time = tk.StringVar()
 folderPath = tk.StringVar()
 location = tk.StringVar()
+server = tk.StringVar()
+selected_tshoot = tk.StringVar()
+advanced = True
+server_xshoot1 = "https://raw.githubusercontent.com/abdessamad-elamrani/tshoot-templates/main/"
+
 # ================================  Menu Bar
 menubar = Menu(window)
 filemenu = Menu(menubar, tearoff=0)
@@ -314,10 +337,10 @@ canvas_CloudCommands=canvas.create_text(81.0, 902.0, anchor="nw", text="Cloud Co
 canvas_Server=canvas.create_text(18.0, 962.0, anchor="nw", text="Server", fill="#FFFFFF", font=("Andika", 15 * -1))
 #entry_image_9 = PhotoImage(file=relative_to_assets("entry_9.png"))
 #entry_bg_9 = canvas.create_image(156.5, 974.5, image=entry_image_9)
-entry_9 = Entry(bd=0, bg="#F1F5FF", highlightthickness=0)
-entry_9.place(x=101.5, y=964.0, width=110.0, height=19.0)
+entry_9 = Entry(bd=0, bg="#F1F5FF", highlightthickness=0,textvariable=server)
+entry_9.place(x=101.5, y=964.0, width=110.0, height=23.0)
 button_image_6 = PhotoImage(file=relative_to_assets("button_6.png"))
-button_6 = Button(image=button_image_6, borderwidth=0, highlightthickness=0, command=lambda: print("button_6 clicked"),
+button_6 = Button(image=button_image_6, borderwidth=0, highlightthickness=0, command=connect,
                   relief="flat")
 button_6.place(x=258.0, y=962.0, width=145.0, height=23.0)
 
@@ -325,10 +348,10 @@ button_6.place(x=258.0, y=962.0, width=145.0, height=23.0)
 canvas_SelectTshoot=canvas.create_text(18.0, 1019.0, anchor="nw", text="Select a Tshoot", fill="#FFFFFF", font=("Andika", 15 * -1))
 #entry_image_10 = PhotoImage(file=relative_to_assets("entry_10.png"))
 #entry_bg_10 = canvas.create_image(203.5, 1033.5, image=entry_image_10)
-entry_10 = Entry(bd=0, bg="#F1F5FF", highlightthickness=0)
+entry_10 = ttk.Combobox( window, textvariable=selected_tshoot)
 entry_10.place(x=154.0, y=1021.0, width=99.0, height=23.0)
 button_image_7 = PhotoImage(file=relative_to_assets("button_7.png"))
-button_7 = Button(image=button_image_7, borderwidth=0, highlightthickness=0, command=lambda: print("button_7 clicked"),
+button_7 = Button(image=button_image_7, borderwidth=0, highlightthickness=0, command=load_selected_tshoot,
                   relief="flat")
 button_7.place(x=288.0, y=1020.0, width=115.0, height=25.0)
 

@@ -1,0 +1,31 @@
+exec time
+exec date
+get system status
+get system performance status
+diag sys session stat
+diag hardware sysinfo memory
+diag hardware sysinfo shm
+diag hardware sysinfo slab
+fnsysctl df
+diag sys top 2 10
+diag sys top-summary \"-s mem\"
+# Interface informations
+get hardware nic port1
+get hardware nic port2
+get hardware nic port3
+get hardware nic port4
+get hardware nic port5
+get hardware nic port6
+get hardware nic port7
+get hardware nic port8
+get hardware nic port9
+get hardware nic port10
+diag netlink interface list xxxxxxx
+diag netlink interface list yyyyyyy
+diag netlink aggregate name Port2_Port3
+diag snmp ip frags
+diagnose firewall packet distribution
+get system performance firewall statistics
+diag sys vd list
+fnsysctl cat /proc/stat
+fnsysctl cat /proc/interrupts
