@@ -67,16 +67,22 @@ class Monitorer:
 
 
         for i in range(self.iterations):
-            self.textarea.insert("end","\n"+str(datetime.now())+" : Wakeup to start next cycle [number "+str(i)+"]")
+            self.textarea.insert("end", "\n-------------------------------------------------------------\n")
+            self.textarea.insert("end","\n"+str(datetime.now())+" : Start cycle "+str(i)+"\n")
+
             self.window.update()
             for x in self.commands:
+                self.textarea.insert("end", "\n>>>>> Sending Command: "+x)
                 interact.send(x)
                 interact.expect(".*#.*")
                 cmd_output_uname = interact.current_output_clean
                 #print(cmd_output_uname)
                 mylogger.info(cmd_output_uname)
             # lets sleep for 10sec
-            self.textarea.insert("end", "\n"+str(datetime.now())+" : Round "+str(i)+" done !\n\n.....Going to sleep for "+ str(self.sla)+" Sec .....")
+            self.textarea.insert("end", "\n")
+            self.textarea.insert("end", "\n"+str(datetime.now())+" : Finshed cycle "+str(i)+"\n")
+            self.textarea.insert("end", "\n-------------------------------------------------------------\n")
+            self.textarea.insert("end", "\n.....Going to sleep for "+str(self.sla)+" Sec .....")
             self.window.update()
             time.sleep(self.sla)
             self.textarea.insert("end","\n")

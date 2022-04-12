@@ -25,9 +25,9 @@ except:
 def donothing():
     x = 0
 
-def switch_to_MainPage():
+def switch_to_Launcher():
     #window.destroy()
-    #exec(open('MainPage.py').read())
+    #exec(open('Launcher.py').read())
     x = 0
 
 def relative_to_assets(path: str) -> Path:
@@ -39,10 +39,10 @@ window = Tk()
 window.geometry("1513x1075")
 window.configure(bg = "#3A7FF6")
 
-#================================  Menu Bar
+#================================  Menu Bar =================================
 menubar = Menu(window)
 filemenu = Menu(menubar, tearoff=0)
-filemenu.add_command(label="Tshoot", command=switch_to_MainPage())
+filemenu.add_command(label="Tshoot", command=switch_to_Launcher())
 filemenu.add_command(label="Analyse", command=donothing())
 filemenu.add_separator()
 filemenu.add_command(label="Exit", command=window.quit)
