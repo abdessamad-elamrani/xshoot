@@ -13,7 +13,7 @@ from logging.handlers import TimedRotatingFileHandler
 
 class Monitorer:
 
-    def __init__(self, host, user, passwd, sla, commands, iterations, folder_path, size_or_time, window, textarea):
+    def __init__(self, host, user, passwd, sla, commands, iterations, folder_path, size_or_time, window, textarea , rotation, maxlogfiles):
         self.host = host
         self.user = user
         self.passwd = passwd
@@ -24,7 +24,19 @@ class Monitorer:
         self.size_or_time = size_or_time
         self.window = window
         self.textarea=textarea
-
+        self.rotation = rotation
+        self.maxlogfiles = maxlogfiles
+        # settings defaults of rotation and maxlogfiles
+        if self.size_or_time == 't':
+            if self.rotation == '':
+                self.rotation = "60"  # 60min is default for timebased
+            if self.maxlogfiles == '':
+                self.rotation = "100"  # 100 files is default of number of log files
+        else: # size based
+            if self.rotation == '':
+                self.rotation = "20"  # 20Mb is default for timebased
+            if self.maxlogfiles == '':
+                self.rotation = "100" # 100 files is default of number of log files
 
     def start(self):
         client = paramiko.SSHClient()
@@ -45,18 +57,18 @@ class Monitorer:
         os.mkdir(fullpath)
         logpath = fullpath+'\\log'
 
-        #### if logging is TimeBased  ## default is 10min ! need to expose it later
+        #### if logging is TimeBased  Then  here self.rotation contain seconds, backupCount number of logs  , default is 1hour, 100 log file
         if self.size_or_time == 't':
             mylogger = logging.getLogger("Rotating Log")
             mylogger.setLevel(logging.INFO)
-            # when="m" means seconds ! change to seconds or hours
-            handler = TimedRotatingFileHandler(logpath, when="s", interval=5, backupCount=5)
+            # when="m" means minutes ! change to seconds or hours
+            handler = TimedRotatingFileHandler(logpath, when="m", interval=int(self.rotation), backupCount=int(self.maxlogfiles))
             mylogger.addHandler(handler)
 
-        #### Otherwise its SizeBased
+        #### Otherwise its SizeBased , we multiply by 1Mb (1024 *1024) , default is 20Mb , maxnumb logs is 100
         else:
-            my_handler = RotatingFileHandler(logpath, mode='a', maxBytes=5 * 1024,
-                                             backupCount=2, encoding=None, delay=0)
+            my_handler = RotatingFileHandler(logpath, mode='a', maxBytes=int(self.rotation) * 1024 * 1024,
+                                             backupCount=int(self.maxlogfiles), encoding=None, delay=0)
             my_handler.setFormatter(log_formatter)
             my_handler.setLevel(logging.INFO)
             mylogger = logging.getLogger('root')
@@ -77,7 +89,8 @@ class Monitorer:
                 interact.expect(".*#.*")
                 cmd_output_uname = interact.current_output_clean
                 #print(cmd_output_uname)
-                mylogger.info(cmd_output_uname)
+                #print(x)
+                #mylogger.info(cmd_output_uname)
             # lets sleep for 10sec
             self.textarea.insert("end", "\n")
             self.textarea.insert("end", "\n"+str(datetime.now())+" : Finshed cycle "+str(i)+"\n")

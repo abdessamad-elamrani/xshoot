@@ -173,7 +173,7 @@ def run():
     entry_12.insert("end", '\n')
     window.update()
     m1 = Monitorer(hostname.get(), username.get(), password.get(), int(interval.get()), commands,
-                   int(iterations.get()) - 1, location.get(), size_or_time.get(), window, entry_12)
+                   int(iterations.get()) - 1, location.get(), size_or_time.get(), window, entry_12 , rotation.get(),maxlogfiles.get())
     m1.start()
 
 
@@ -199,6 +199,8 @@ server = tk.StringVar()
 selected_tshoot = tk.StringVar()
 advanced = True
 server_xshoot1 = "https://raw.githubusercontent.com/abdessamad-elamrani/tshoot-templates/main/"
+rotation = tk.StringVar()
+maxlogfiles = tk.StringVar()
 
 # ================================  Menu Bar
 menubar = Menu(window)
@@ -312,11 +314,11 @@ r2.place(x=210.0, y=666.0, width=143.0, height=45.0)
 
 # ====================================== Specify Rotation Condition  ==================================================
 canvas_RotationCondition=canvas.create_text(18.0, 717.0, anchor="nw",
-                   text="Rotation Condition \n [in Bytes] for Size based\n [in Mins ]  for Time based", fill="#FFFFFF",
+                   text="Rotation Condition \n [in Mb] for Size based\n [in Mins ]  for Time based", fill="#FFFFFF",
                    font=("Andika", 15 * -1))
 #entry_image_7 = PhotoImage(file=relative_to_assets("entry_7.png"))
 #entry_bg_7 = canvas.create_image(346.5, 826.0, image=entry_image_7)
-entry_7 = Entry(bd=0, bg="#F1F5FF", highlightthickness=0)
+entry_7 = Entry(bd=0, bg="#F1F5FF", highlightthickness=0 , textvariable=rotation)
 entry_7.place(x=304.0, y=811.0, width=85.0, height=28.0)
 
 # ====================================== Specify MaxNumber of Log Files (rotated)  ==================================================
@@ -324,7 +326,7 @@ canvas_MaxNumberLogfiles=canvas.create_text(18.0, 814.0, anchor="nw", text="Max 
                    font=("Andika", 15 * -1))
 #entry_image_8 = PhotoImage(file=relative_to_assets("entry_8.png"))
 #entry_bg_8 = canvas.create_image(347.5, 754.0, image=entry_image_8)
-entry_8 = Entry(bd=0, bg="#F1F5FF", highlightthickness=0)
+entry_8 = Entry(bd=0, bg="#F1F5FF", highlightthickness=0, textvariable=maxlogfiles)
 entry_8.place(x=306.0, y=740.0, width=83.0, height=26.0)
 
 # ====================================== White Ligne2  ==================================================
